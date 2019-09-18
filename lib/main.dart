@@ -28,10 +28,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   List<Music> myMusicList = [
-    new Music('Musique une', 'Artiste un', 'assets/alpine.jpg', 'https://codabee.com/wp-content/uploads/2018/06/un.mp3'),
-    new Music('Musique deux', 'Artiste deux', 'assets/fantasy.jpg', 'https://codabee.com/wp-content/uploads/2018/06/deux.mp3'),
+    new Music('Musique une', 'Artiste un', 'assets/alpine.jpg',
+        'https://codabee.com/wp-content/uploads/2018/06/un.mp3'),
+    new Music('Musique deux', 'Artiste deux', 'assets/fantasy.jpg',
+        'https://codabee.com/wp-content/uploads/2018/06/deux.mp3'),
   ];
 
   AudioPlayer audioPlayer;
@@ -67,7 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
               elevation: 9.0,
               child: new Container(
                 width: MediaQuery.of(context).size.height / 2.5,
-                child: new Image.asset(myActualMusic.getImagePath(),
+                child: new Image.asset(
+                  myActualMusic.getImagePath(),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -79,15 +81,22 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 //todo switch de bouton play / pause en fonction de la musique
                 button(Icons.fast_rewind, 30.0, ActionMusic.previous),
-                button((status == PlayerState.playing) ? Icons.pause : Icons.play_arrow, 45.0, (status == PlayerState.playing) ? ActionMusic.pause : ActionMusic.play),
+                button(
+                    (status == PlayerState.playing)
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                    45.0,
+                    (status == PlayerState.playing)
+                        ? ActionMusic.pause
+                        : ActionMusic.play),
                 button(Icons.fast_forward, 30.0, ActionMusic.next),
               ],
             ),
             new Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                textWithStyle("0:00", 0.8),
-                textWithStyle("0:22", 0.8),
+                textWithStyle(fromDuration(position), 0.8),
+                textWithStyle(fromDuration(time), 0.8),
               ],
             ),
             new Slider(
@@ -98,11 +107,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 activeColor: Colors.red,
                 onChanged: (double d) {
                   setState(() {
-                    Duration newDuration = new Duration(seconds: d.toInt());
-                    position = newDuration;
+                    //Duration newDuration = new Duration(seconds: d.toInt());
+                    //position = newDuration;
+                    audioPlayer.seek(d);
                   });
-                }
-            ),
+                }),
           ],
         ),
       ),
@@ -110,51 +119,47 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Text textWithStyle(String data, double scale) {
-    return new Text(
-      data,
-      textScaleFactor: scale,
-      textAlign: TextAlign.center,
-      style: new TextStyle(
-        color: Colors.white,
-        fontSize: 20.0,
-        fontStyle: FontStyle.italic,
-      )
-    );
+    return new Text(data,
+        textScaleFactor: scale,
+        textAlign: TextAlign.center,
+        style: new TextStyle(
+          color: Colors.white,
+          fontSize: 20.0,
+          fontStyle: FontStyle.italic,
+        ));
   }
 
   IconButton button(IconData icon, double scale, ActionMusic action) {
     return new IconButton(
-      iconSize: scale,
+        iconSize: scale,
         color: Colors.white,
         icon: new Icon(icon),
         onPressed: () {
           switch (action) {
             case ActionMusic.play:
-              print("start de la musique");
+              //print("start de la musique");
               play();
               break;
             case ActionMusic.pause:
-              print("pause de la musique");
+              //print("pause de la musique");
               pause();
               break;
             case ActionMusic.next:
-              print("next musique");
+              //print("next musique");
               next();
               break;
             case ActionMusic.previous:
-              print("previous musique");
+              //print("previous musique");
               previous();
               break;
           }
-        }
-    );
+        });
   }
 
   void configurationAudioPlayer() {
     audioPlayer = new AudioPlayer();
-    positionSub = audioPlayer.onAudioPositionChanged.listen(
-        (pos) => setState(() => position = pos)
-    );
+    positionSub = audioPlayer.onAudioPositionChanged
+        .listen((pos) => setState(() => position = pos));
     stateSubscription = audioPlayer.onPlayerStateChanged.listen((state) {
       if (state == AudioPlayerState.PLAYING) {
         setState(() {
@@ -172,8 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
         time = new Duration(seconds: 0);
         position = new Duration(seconds: 0);
       });
-    }
-    );
+    });
   }
 
   Future play() async {
@@ -217,6 +221,12 @@ class _MyHomePageState extends State<MyHomePage> {
       play();
     }
   }
+
+  // Recupere le temps de la chanson
+  String fromDuration(Duration time) {
+    return time.toString().split('.').first;
+  }
+
 }
 
 // enum des boutons en dehors de la classe TOUJOURS
